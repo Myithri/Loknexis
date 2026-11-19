@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKNEXIS | Admin Dashboard</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial;background:#eef5ff;color:#17345c;margin:0;padding:25px}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+h1,h2{color:#1261b5}
+.panel{background:white;padding:20px;border-radius:12px;margin-top:20px}
+.item{border-bottom:1px solid #ddd;padding:13px 0}
+a{background:#1261b5;color:white;padding:10px 15px;text-decoration:none;border-radius:7px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>LOKNEXIS Admin Dashboard</h1>
+<a href="login.html" onclick="sessionStorage.clear()">Logout</a>
+</header>
+
+<div class="panel">
+<h2>Booking Management</h2>
+<div id="bookings"></div>
+</div>
+
+<div class="panel">
+<h2>Customer Reviews</h2>
+<div id="reviews"></div>
+</div>
+
+<div class="panel">
+<h2>Support Requests</h2>
+<div id="support"></div>
+</div>
+
+<script>
+if (sessionStorage.getItem("userRole") !== "admin") {
+    alert("Please log in as admin.");
+    window.location.href = "login.html";
+}
+
+function displayData(key, elementId, formatFunction) {
+
+    let data = JSON.parse(localStorage.getItem(key) || "[]");
+    let box = document.getElementById(elementId);
+
+    if (data.length === 0) {
+        box.textContent = "No records yet.";
+        return;
+    }
+
+    data.slice().reverse().forEach(function(item) {
+
+        let div = document.createElement("div");
+        div.className = "item";
+        div.textContent = formatFunction(item);
+
+        box.appendChild(div);
+    });
+}
+
+displayData("loknexisBookings", "bookings", function(b) {
+    return "Customer: " + b.customer +
+    " | Phone: " + b.phone +
+    " | Service: " + b.service +
+    " | Worker: " + b.worker +
+    " | Date: " + b.date +
+    " | Status: " + b.status +
+    " | Address: " + b.address;
+});
+
+displayData("loknexisReviews", "reviews", function(r) {
+    return r.worker + " | " + r.service +
+    " | " + r.rating + "/5 | " +
+    r.name + ": " + r.feedback;
+});
+
+displayData("loknexisSupport", "support", function(s) {
+    return s.name + " | " + s.email +
+    " | " + s.issue + ": " + s.description;
+});
+</script>
+
+</body>
+</html>

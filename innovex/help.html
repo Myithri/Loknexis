@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKNEXIS | Help & Support</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f1f6fd;color:#17345c}
+header{background:white;padding:18px 7%;display:flex;justify-content:space-between}
+.brand{font-size:24px;color:#1261b5;font-weight:bold}
+a{color:#1261b5;text-decoration:none;font-weight:bold}
+.box{max-width:750px;margin:35px auto;padding:25px;background:white;border-radius:15px}
+h1,h2{color:#145da8}
+input,select,textarea{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #bdcde0;border-radius:8px}
+textarea{min-height:100px}
+button{background:#1261b5;color:white;border:0;padding:12px 20px;border-radius:8px;cursor:pointer}
+.faq{padding:14px;border-bottom:1px solid #ddd}
+.answer{display:none;color:#536b88;padding-top:8px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="brand">LOKNEXIS</div>
+<a href="index.html">HOME</a>
+</header>
+
+<div class="box">
+<h1>Help & Support</h1>
+<p>We are here to help you use LOKNEXIS.</p>
+
+<h2>Frequently Asked Questions</h2>
+
+<div class="faq">
+<b onclick="toggle(this)">How do I book a service? ▼</b>
+<div class="answer">Open Booking, enter your requirement and location, then compare and select a listed worker.</div>
+</div>
+
+<div class="faq">
+<b onclick="toggle(this)">Can I choose my own worker? ▼</b>
+<div class="answer">Yes. The demo shows matching worker profiles and sample ratings so you can choose.</div>
+</div>
+
+<div class="faq">
+<b onclick="toggle(this)">Can I upload a problem photo? ▼</b>
+<div class="answer">Yes. Open AI Assistant and upload an image. Actual AI diagnosis requires a connected AI service.</div>
+</div>
+
+<div class="faq">
+<b onclick="toggle(this)">How do I rate a worker? ▼</b>
+<div class="answer">Open Ratings & Reviews after a service and submit your feedback.</div>
+</div>
+
+<h2>Contact Support</h2>
+
+<form id="supportForm">
+<label>Name</label>
+<input id="sname" required>
+
+<label>Email</label>
+<input id="email" type="email" required>
+
+<label>Issue type</label>
+<select id="issue">
+<option>Booking issue</option>
+<option>Login issue</option>
+<option>Worker issue</option>
+<option>Other</option>
+</select>
+
+<label>Describe your issue</label>
+<textarea id="description" required></textarea>
+
+<button type="submit">Submit Request</button>
+</form>
+
+<p id="message"></p>
+</div>
+
+<script>
+function toggle(element) {
+    let answer = element.nextElementSibling;
+
+    if (answer.style.display === "block") {
+        answer.style.display = "none";
+    }
+    else {
+        answer.style.display = "block";
+    }
+}
+
+document.getElementById("sname").value =
+    sessionStorage.getItem("userName") || "";
+
+document.getElementById("supportForm").addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    let requests = JSON.parse(
+        localStorage.getItem("loknexisSupport") || "[]"
+    );
+
+    requests.push({
+        name: document.getElementById("sname").value,
+        email: document.getElementById("email").value,
+        issue: document.getElementById("issue").value,
+        description: document.getElementById("description").value
+    });
+
+    localStorage.setItem("loknexisSupport", JSON.stringify(requests));
+
+    document.getElementById("message").textContent =
+        "Your support request has been saved in this browser demo.";
+
+    this.reset();
+});
+</script>
+
+</body>
+</html>

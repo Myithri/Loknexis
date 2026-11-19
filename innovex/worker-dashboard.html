@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKNEXIS | Worker Dashboard</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial;background:#eef5ff;color:#17345c;margin:0;padding:25px}
+h1,h2{color:#1261b5}
+.panel{background:white;padding:22px;border-radius:12px;margin-top:20px}
+.job{border-bottom:1px solid #ddd;padding:13px 0}
+a{background:#1261b5;color:white;padding:10px 15px;text-decoration:none;border-radius:7px}
+</style>
+</head>
+<body>
+
+<h1>LOKNEXIS Worker Dashboard</h1>
+<p id="welcome"></p>
+
+<a href="login.html" onclick="sessionStorage.clear()">Logout</a>
+
+<div class="panel">
+<h2>Your Assigned Jobs</h2>
+<div id="jobs"></div>
+</div>
+
+<script>
+if (sessionStorage.getItem("userRole") !== "worker") {
+    alert("Please log in as a worker.");
+    window.location.href = "login.html";
+}
+
+let workerName = sessionStorage.getItem("userName") || "Worker";
+
+document.getElementById("welcome").textContent =
+    "Welcome, " + workerName + "!";
+
+let allBookings = JSON.parse(
+    localStorage.getItem("loknexisBookings") || "[]"
+);
+
+let myJobs = allBookings.filter(function(booking) {
+    return booking.worker === workerName;
+});
+
+let jobArea = document.getElementById("jobs");
+
+if (myJobs.length === 0) {
+    jobArea.textContent = "No jobs have been assigned to you yet.";
+}
+else {
+    myJobs.slice().reverse().forEach(function(booking) {
+
+        let div = document.createElement("div");
+        div.className = "job";
+
+        div.textContent =
+            "Service: " + booking.service +
+            " | Problem: " + booking.problem +
+            " | Customer: " + booking.customer +
+            " | Phone: " + booking.phone +
+            " | Address: " + booking.address +
+            " | Date: " + booking.date +
+            " | Status: " + booking.status;
+
+        jobArea.appendChild(div);
+    });
+}
+</script>
+
+</body>
+</html>

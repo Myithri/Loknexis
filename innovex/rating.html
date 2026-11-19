@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKNEXIS | Ratings</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f1f6fd;color:#17345c}
+header{background:white;padding:18px 7%;display:flex;justify-content:space-between}
+.brand{font-size:24px;color:#1261b5;font-weight:bold}
+a{color:#1261b5;text-decoration:none;font-weight:bold}
+.box{max-width:700px;margin:35px auto;padding:25px;background:white;border-radius:15px}
+h1,h2{color:#145da8}
+input,select,textarea{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #bdcde0;border-radius:8px}
+textarea{min-height:90px}
+button{background:#1261b5;color:white;border:0;padding:12px 20px;border-radius:8px;cursor:pointer}
+.stars{font-size:32px;color:#f3b51b;cursor:pointer}
+.review{padding:12px;border-bottom:1px solid #ddd}
+</style>
+</head>
+<body>
+
+<header>
+<div class="brand">LOKNEXIS</div>
+<a href="index.html">HOME</a>
+</header>
+
+<div class="box">
+<h1>Ratings & Reviews</h1>
+<p>Share your experience and help customers choose reliable workers.</p>
+
+<form id="reviewForm">
+
+<label>Your name</label>
+<input id="name" required>
+
+<label>Worker name</label>
+<input id="worker" required>
+
+<label>Service</label>
+<select id="service" required>
+<option value="">Choose service</option>
+<option>Plumbing</option>
+<option>Electrical</option>
+<option>Carpentry</option>
+<option>Painting</option>
+<option>Cleaning</option>
+<option>Caregiving</option>
+</select>
+
+<label>Your rating</label>
+<div class="stars" id="stars">☆ ☆ ☆ ☆ ☆</div>
+
+<label>Feedback</label>
+<textarea id="feedback" required></textarea>
+
+<button type="submit">Submit Review</button>
+</form>
+
+<h2>Recent Reviews</h2>
+<div id="reviews"></div>
+</div>
+
+<script>
+let rating = 0;
+
+document.getElementById("name").value =
+    sessionStorage.getItem("userName") || "";
+
+document.getElementById("stars").addEventListener("click", function(event) {
+
+    let rect = event.currentTarget.getBoundingClientRect();
+
+    rating = Math.max(
+        1,
+        Math.min(5, Math.ceil((event.clientX - rect.left) / rect.width * 5))
+    );
+
+    document.getElementById("stars").textContent =
+        "★ ".repeat(rating) + "☆ ".repeat(5 - rating);
+});
+
+function displayReviews() {
+
+    let reviews = JSON.parse(
+        localStorage.getItem("loknexisReviews") || "[]"
+    );
+
+    let box = document.getElementById("reviews");
+    box.replaceChildren();
+
+    if (reviews.length === 0) {
+        box.textContent = "No reviews yet.";
+        return;
+    }
+
+    reviews.slice().reverse().forEach(function(review) {
+
+        let div = document.createElement("div");
+        div.className = "review";
+
+        div.textContent =
+            review.worker + " | " +
+            review.service + " | " +
+            "★".repeat(review.rating) + " | " +
+            review.name + ": " +
+            review.feedback;
+
+        box.appendChild(div);
+    });
+}
+
+document.getElementById("reviewForm").addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    if (rating === 0) {
+        alert("Please select a star rating.");
+        return;
+    }
+
+    let reviews = JSON.parse(
+        localStorage.getItem("loknexisReviews") || "[]"
+    );
+
+    reviews.push({
+        name: document.getElementById("name").value,
+        worker: document.getElementById("worker").value,
+        service: document.getElementById("service").value,
+        rating: rating,
+        feedback: document.getElementById("feedback").value
+    });
+
+    localStorage.setItem("loknexisReviews", JSON.stringify(reviews));
+
+    alert("Thank you for your review!");
+
+    this.reset();
+    rating = 0;
+    document.getElementById("stars").textContent = "☆ ☆ ☆ ☆ ☆";
+
+    displayReviews();
+});
+
+displayReviews();
+</script>
+
+</body>
+</html>

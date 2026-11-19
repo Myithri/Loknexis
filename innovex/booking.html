@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKNEXIS | Booking</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f1f6fd;color:#17345c}
+header{background:white;padding:18px 7%;display:flex;justify-content:space-between;flex-wrap:wrap}
+header a{color:#1261b5;text-decoration:none;margin-left:14px;font-weight:bold}
+.brand{font-size:24px;color:#1261b5;font-weight:bold}
+.container{max-width:850px;margin:30px auto;padding:15px}
+.panel{background:white;padding:25px;border-radius:15px;margin-bottom:20px;box-shadow:0 5px 20px #17345c12}
+h1,h2{color:#145da8}
+input,select,textarea{width:100%;padding:12px;margin:8px 0 15px;border:1px solid #bdcde0;border-radius:8px;font:inherit}
+textarea{min-height:85px}
+button{background:#1261b5;color:white;border:0;border-radius:8px;padding:13px 18px;cursor:pointer}
+.worker{border:1px solid #d1dfef;padding:16px;border-radius:10px;margin:12px 0}
+.worker h3{margin:0 0 8px}
+.worker p{margin:6px 0}
+#workersSection{display:none}
+.small{font-size:13px;color:#657992}
+</style>
+</head>
+<body>
+
+<header>
+<div class="brand">LOKNEXIS</div>
+<nav>
+<a href="index.html">HOME</a>
+<a href="ai assistance.html">AI ASSISTANT</a>
+<a href="rating.html">RATINGS</a>
+<a href="login.html" onclick="sessionStorage.clear()">LOGOUT</a>
+</nav>
+</header>
+
+<div class="container">
+
+<div class="panel">
+<h1>Book a Service</h1>
+<p>Describe your household or community service requirement.</p>
+
+<form id="bookingForm">
+
+<label>Your name</label>
+<input id="customer" required>
+
+<label>Mobile number</label>
+<input id="phone" type="tel" pattern="[0-9]{10}" maxlength="10" required>
+
+<label>Service required</label>
+<select id="service" required>
+<option value="">Select service</option>
+<option>Plumbing</option>
+<option>Electrical</option>
+<option>Carpentry</option>
+<option>Painting</option>
+<option>Cleaning</option>
+<option>Caregiving</option>
+</select>
+
+<label>Describe the problem</label>
+<textarea id="problem" required placeholder="Explain what needs to be fixed..."></textarea>
+
+<label>Address / area</label>
+<input id="address" required>
+
+<label>Preferred date</label>
+<input id="date" type="date" required>
+
+<button type="submit">Find Available Workers</button>
+</form>
+</div>
+
+<div class="panel" id="workersSection">
+<h2>Choose Your Worker</h2>
+<p>Compare skills, ratings and completed jobs before choosing.</p>
+<p class="small">The worker profiles and ratings below are sample demonstration data.</p>
+<div id="workerList"></div>
+</div>
+
+</div>
+
+<script>
+const workers = [
+    {name:"Arun", skill:"Plumbing", rating:4.8, jobs:45},
+    {name:"Kumar", skill:"Electrical", rating:4.7, jobs:38},
+    {name:"Priya", skill:"Cleaning", rating:4.9, jobs:52},
+    {name:"Ravi", skill:"Carpentry", rating:4.6, jobs:29},
+    {name:"Meena", skill:"Caregiving", rating:4.9, jobs:41},
+    {name:"Suresh", skill:"Painting", rating:4.5, jobs:25}
+];
+
+let currentBooking = {};
+
+window.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("customer").value =
+        sessionStorage.getItem("userName") || "";
+
+    document.getElementById("phone").value =
+        sessionStorage.getItem("userPhone") || "";
+
+    document.getElementById("date").min =
+        new Date().toISOString().split("T")[0];
+});
+
+document.getElementById("bookingForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    currentBooking = {
+        customer: document.getElementById("customer").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        service: document.getElementById("service").value,
+        problem: document.getElementById("problem").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        date: document.getElementById("date").value
+    };
+
+    let matchingWorkers = workers.filter(function(worker) {
+        return worker.skill === currentBooking.service;
+    });
+
+    matchingWorkers.sort(function(a, b) {
+        return b.rating - a.rating;
+    });
+
+    let workerList = document.getElementById("workerList");
+
+    if (matchingWorkers.length === 0) {
+        workerList.textContent = "No demo worker is available for this service yet.";
+    }
+    else {
+        workerList.innerHTML = matchingWorkers.map(function(worker) {
+            return `
+                <div class="worker">
+                    <h3>${worker.name}</h3>
+                    <p>Skill: ${worker.skill}</p>
+                    <p>Rating: ⭐ ${worker.rating}/5</p>
+                    <p>Completed jobs: ${worker.jobs}</p>
+                    <button type="button"
+                    onclick="selectWorker('${worker.name}')">
+                    Choose ${worker.name}
+                    </button>
+                </div>
+            `;
+        }).join("");
+    }
+
+    document.getElementById("workersSection").style.display = "block";
+    document.getElementById("workersSection").scrollIntoView({behavior:"smooth"});
+});
+
+function selectWorker(name) {
+    currentBooking.worker = name;
+    currentBooking.status = "Pending";
+    currentBooking.bookingId = "LX" + Date.now();
+
+    let allBookings = JSON.parse(
+        localStorage.getItem("loknexisBookings") || "[]"
+    );
+
+    allBookings.push(currentBooking);
+
+    localStorage.setItem(
+        "loknexisBookings",
+        JSON.stringify(allBookings)
+    );
+
+    alert("Booking saved! You selected " + name + ".");
+
+    document.getElementById("workersSection").style.display = "none";
+    document.getElementById("bookingForm").reset();
+
+    document.getElementById("customer").value =
+        sessionStorage.getItem("userName") || "";
+
+    document.getElementById("phone").value =
+        sessionStorage.getItem("userPhone") || "";
+}
+</script>
+
+</body>
+</html>

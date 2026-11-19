@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKNEXIS | AI Assistant</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#eef5ff;color:#17345c}
+header{background:white;padding:18px 7%;display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:24px;color:#1261b5;font-weight:bold}
+header a{color:#1261b5;text-decoration:none;font-weight:bold}
+.container{max-width:720px;margin:35px auto;padding:15px}
+.panel{background:white;padding:25px;border-radius:15px;box-shadow:0 5px 20px #17345c15}
+h1{color:#145da8}
+textarea{width:100%;padding:13px;border:1px solid #bdcde0;border-radius:8px;min-height:90px}
+button{background:#1261b5;color:white;border:0;border-radius:8px;padding:13px 20px;cursor:pointer;margin-top:12px}
+#preview{max-width:100%;max-height:300px;display:none;margin:15px 0;border-radius:10px}
+#result{background:#eef5ff;padding:15px;border-radius:10px;margin-top:20px;display:none;line-height:1.6}
+.note{color:#63758d;font-size:13px}
+</style>
+</head>
+<body>
+
+<header>
+<div class="brand">LOKNEXIS</div>
+<a href="booking.html">BOOK A SERVICE</a>
+</header>
+
+<div class="container">
+<div class="panel">
+
+<h1>AI Problem Assistant</h1>
+<p>Upload a photo of your problem or describe it. Our assistant can help guide you towards the right service.</p>
+
+<label><b>Upload a problem photo</b></label><br>
+<input type="file" id="photo" accept="image/*" capture="environment">
+
+<br>
+<img id="preview" alt="Selected problem photo">
+
+<label><b>Describe your problem</b></label>
+<textarea id="description" placeholder="Example: Water is leaking below my kitchen sink..."></textarea>
+
+<button type="button" onclick="analyseProblem()">Analyse My Problem</button>
+
+<div id="result"></div>
+
+<p class="note">
+Safety: Do not touch exposed wires, gas leaks or dangerous equipment.
+Contact a qualified professional.
+</p>
+
+</div>
+</div>
+
+<script>
+let selectedPhoto = null;
+let previewUrl = null;
+
+document.getElementById("photo").addEventListener("change", function() {
+
+    let file = this.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select an image file.");
+        this.value = "";
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Please select an image smaller than 5 MB.");
+        this.value = "";
+        return;
+    }
+
+    selectedPhoto = file;
+
+    if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+    }
+
+    previewUrl = URL.createObjectURL(file);
+
+    let preview = document.getElementById("preview");
+    preview.src = previewUrl;
+    preview.style.display = "block";
+});
+
+function analyseProblem() {
+
+    let description = document.getElementById("description").value.trim();
+    let result = document.getElementById("result");
+
+    if (!selectedPhoto && description === "") {
+        alert("Please upload a photo or describe your problem.");
+        return;
+    }
+
+    result.style.display = "block";
+
+    if (selectedPhoto) {
+        result.textContent =
+        "Your photo has been selected: " + selectedPhoto.name +
+        ". The image is ready for connection to an AI vision service. " +
+        "This demo previews the image but does not diagnose its contents yet.";
+    }
+    else {
+        result.textContent =
+        "Your description has been received: " + description +
+        ". A connected AI service can provide a diagnosis and recommend a service category.";
+    }
+}
+</script>
+
+</body>
+</html>
